@@ -1,8 +1,8 @@
 const express = require("express");
 const helmet = require("helmet");
 const config = require("./config");
-const { ProjectRoutes } = require("./api-routes");
 const loaders = require("./loaders");
+const { ProjectRoutes } = require("./api-routes");
 
 
 config();
