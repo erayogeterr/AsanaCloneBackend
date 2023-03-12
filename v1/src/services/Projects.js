@@ -6,6 +6,11 @@ const insert = (projectData) => {
    return project.save();
 }
 
+const list = () => {
+   return Project.find({});
+}
+
 module.exports = {
     insert,
+    list
 }
