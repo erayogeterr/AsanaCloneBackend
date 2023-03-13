@@ -1,7 +1,9 @@
 const { insert, list } = require("../services/Users")
 const httpStatus = require("http-status");
+const { passwordToHash } = require("../scripts/utils/helper")
 
 const create = (req, res) => {
+    req.body.password = passwordToHash(req.body.password);
     insert(req.body)
     .then((response) => { 
         res.status(httpStatus.CREATED).send(response);
