@@ -10,7 +10,12 @@ const list = () => {
    return User.find({});
 }
 
+const loginUser = (loginData) => {
+    return User.findOne(loginData)
+}
+
 module.exports = {
     insert,
-    list
+    list,
+    loginUser,
 }

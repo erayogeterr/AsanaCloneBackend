@@ -1,6 +1,6 @@
-const { insert, list } = require("../services/Users")
+const { insert, list, loginUser } = require("../services/Users")
 const httpStatus = require("http-status");
-const { passwordToHash } = require("../scripts/utils/helper")
+const { passwordToHash, generateAccessToken, generateRefreshToken } = require("../scripts/utils/helper")
 
 const create = (req, res) => {
     req.body.password = passwordToHash(req.body.password);
@@ -19,7 +19,25 @@ const index = (req, res) => {
     }).catch(e => res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e));
 }
 
+const login = (req, res) => {
+    req.body.password = passwordToHash(req.body.password);
+    loginUser(req.body) 
+        .then((user) => {
+            if(!user) return res.status(httpStatus.NOT_FOUND).send({ message : "Böyle bir kullanıcı yoktur."})
+            user = {
+                ...user.toObject(),
+                tokens : {
+                    access_token : generateAccessToken(user),
+                    refresh_token : generateRefreshToken(user),
+                },
+            };
+            res.status(httpStatus.OK).send(user);
+        })
+        .catch((e) => res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e));
+};
+
 module.exports = {
     create,
     index,
+    login,
 }
