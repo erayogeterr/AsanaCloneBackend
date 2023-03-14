@@ -14,8 +14,13 @@ const loginUser = (loginData) => {
     return User.findOne(loginData)
 }
 
+const modify = (where,data) => {
+    return User.findOneAndUpdate(where,data, {new : true});
+};
+
 module.exports = {
     insert,
     list,
     loginUser,
+    modify,
 }
