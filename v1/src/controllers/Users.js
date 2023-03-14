@@ -3,6 +3,7 @@ const httpStatus = require("http-status");
 const projectService = require("../services/Projects")
 const { passwordToHash, generateAccessToken, generateRefreshToken } = require("../scripts/utils/helper")
 const uuid = require("uuid");
+const eventEmitter = require("../scripts/events/eventEmitter")
 
 const create = (req, res) => {
     req.body.password = passwordToHash(req.body.password);
@@ -54,10 +55,17 @@ const projectList = (req, res) => {
 
 const resetPassword = (req, res) => {
    const new_password = uuid.v4()?.split("-")[0] || `usr-${new Date().getTime()}`
-
    modify({ email: req.body.email}, { password: passwordToHash(new_password)})
    .then((updatedUser) => {
     if (!updatedUser) return res.status(httpStatus.NOT_FOUND).send({ error : "Böyle bir kullanıcı bulunmamaktadır."});
+    eventEmitter.emit("send_email", {
+        to: updatedUser.email,
+        subject: "Şifre Sıfırlama",
+        html : `Talebiniz üzerine şifre sıfırlama işleminiz gerçekleşmiştir. <br /> Giriş yaptıktan sonra şifrenizi değiştirmeyi unutmayım! <br /> Yeni Şifreniz : <b>${new_password}`
+    });
+    res.status(httpStatus.OK).send({
+        message: "Şifre sıfırlama işlemi için sisteme kayıtlı e-posta adresinize gereken bilgileri gönderdik."
+    })
    })
    .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ error : "Şifre resetleme sırasında sorun çıktı."}))
   
