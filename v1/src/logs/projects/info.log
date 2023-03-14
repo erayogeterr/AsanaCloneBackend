@@ -1,1 +1,3 @@
 {"level":"info","message":{"_id":"640ec8977be98d124fc82cc0","createdAt":"2023-03-13T06:54:15.132Z","name":"13 mart deneme234","updatedAt":"2023-03-13T06:54:15.132Z"},"service":"user-service"}
+{"level":"info","message":{"_id":"64102dbf111584120d3c8c30","createdAt":"2023-03-14T08:18:07.689Z","name":"ASANA CLONE","updatedAt":"2023-03-14T08:18:07.689Z","user_id":"640ef40039883016a4de7e17"},"service":"project-service"}
+{"level":"info","message":{"_id":"64102eabbbaf1627f4c3ea64","createdAt":"2023-03-14T08:22:03.974Z","name":"ASANA CLONE2","updatedAt":"2023-03-14T08:22:03.974Z","user_id":"640ef40039883016a4de7e17"},"service":"project-service"}
