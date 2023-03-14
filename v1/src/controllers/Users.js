@@ -1,5 +1,6 @@
 const { insert, list, loginUser } = require("../services/Users")
 const httpStatus = require("http-status");
+const projectService = require("../services/Projects")
 const { passwordToHash, generateAccessToken, generateRefreshToken } = require("../scripts/utils/helper")
 
 const create = (req, res) => {
@@ -36,8 +37,24 @@ const login = (req, res) => {
         .catch((e) => res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e));
 };
 
+
+const projectList = (req, res) => {
+   projectService
+   .list({ user_id: req.user?._id})
+   .then((projects) => {
+    res.status(httpStatus.OK).send(projects);
+   })
+   .catch(() => 
+   res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+    error: "Projeleri getirirken beklenmedik bir hata oluştu."
+   })
+   );
+};
+
+
 module.exports = {
     create,
     index,
     login,
+    projectList,
 }
