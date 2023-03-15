@@ -16,6 +16,8 @@ const app = express();
 app.use(express.json()) //Body'deki bilgileri JSON olarak alıyoruz.
 app.use(helmet());
 
+console.log("Selam özhan.")
+
 app.listen(process.env.APP_PORT, () => {
     console.log("Sunucu ayağa kalktı. -> PORT NO :", process.env.APP_PORT);
     app.use("/projects", ProjectRoutes);
