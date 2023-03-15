@@ -15,6 +15,7 @@ app.use(helmet());
 
 console.log("Selam özhan.");
 console.log("Selam eray.");
+console.log("SELAM SELAM 2");
 
 app.listen(process.env.APP_PORT, () => {
   console.log("Sunucu ayağa kalktı. -> PORT NO :", process.env.APP_PORT);
