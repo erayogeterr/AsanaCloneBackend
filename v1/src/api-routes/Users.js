@@ -1,4 +1,4 @@
-const { create, index, login, projectList, resetPassword, update, deleteUser, changePassword } = require("../controllers/Users")
+const { create, index, login, projectList, resetPassword, update, deleteUser, changePassword, updateProfileImage } = require("../controllers/Users")
 const express = require("express")
 const validate = require("../middlewares/validate")
 const schemas = require("../validations/Users")
@@ -14,5 +14,6 @@ router.route("/projects").get(authenticate, projectList);
 router.route("/reset-password").post(validate(schemas.resetPasswordValidation), resetPassword);
 router.route("/change-password").post(authenticate ,validate(schemas.changePasswordValidation), changePassword);
 router.route("/:id").delete(authenticate, deleteUser);
+router.route("/update-profile-image").post(authenticate, updateProfileImage);
 
 module.exports = router;
