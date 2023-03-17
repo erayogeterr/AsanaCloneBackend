@@ -36,8 +36,8 @@ const deleteProject = (req, res ) => {
      });
      } 
 
-     remove(req.params?.id).then(deletedProject => {
-        if(!deletedProject) {
+     remove(req.params?.id).then(deletedItem => {
+        if(!deletedItem) {
            return res.status(httpStatus.NOT_FOUND).send({
                 message : "Kayıt bulunamadı."
             })
