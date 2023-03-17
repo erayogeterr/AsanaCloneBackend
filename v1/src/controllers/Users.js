@@ -79,6 +79,17 @@ const update = (req, res) => {
         .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ error: "Güncelleme işlemi sırasında hata alındı."}));
 };
 
+const changePassword = (req, res) => {
+    req.body.password = passwordToHash(req.body.password);
+    //!.. ui ile yapılacak şifre karşılaştırma kuralları..
+    modify({ _id: req.user?.id}, req.body)
+        .then((updatedUser) => {
+            res.status(httpStatus.OK).send(updatedUser);
+        })
+        .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ error: "Güncelleme işlemi sırasında hata alındı."}));
+};
+
+
 
 const deleteUser = (req, res ) => {
     if(!req.params?.id) {
@@ -105,4 +116,5 @@ module.exports = {
     resetPassword,
     update,
     deleteUser,
+    changePassword,
 }
