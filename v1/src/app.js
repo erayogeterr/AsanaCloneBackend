@@ -5,12 +5,13 @@ const config = require("./config");
 const loaders = require("./loaders");
 const events = require("./scripts/events");
 const { ProjectRoutes, UserRoutes } = require("./api-routes");
-
+const path = require("path");
 config();
 loaders();
 events();
 
 const app = express();
+app.use("/uploads", express.static(path.join(__dirname, "./", "uploads")));
 app.use(express.json()); //Body'deki bilgileri JSON olarak alıyoruz.
 app.use(helmet());
 app.use(fileUpload());
