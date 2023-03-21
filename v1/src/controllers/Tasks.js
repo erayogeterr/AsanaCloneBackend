@@ -1,9 +1,12 @@
-const { insert, modify, list, remove, findOne } = require("../services/Tasks");
 const httpStatus = require("http-status");
+
+const Service = require("../services/Tasks");
+const TaskService = new Service();
+
 
 const create = (req, res) => {
   req.body.user_id = req.user;
-  insert(req.body)
+  TaskService.create(req.body)
     .then((response) => {
       res.status(httpStatus.CREATED).send(response);
     })
@@ -13,11 +16,8 @@ const create = (req, res) => {
 };
 
 const index = (req, res) => {
-  if (req?.params?.projectId)
-    return res
-      .status(httpStatus.BAD_REQUEST)
-      .send({ error: "Proje bilgisi eksik." });
-  list(project ? id : req.params.projectId)
+  if (req?.params?.projectId) return res .status(httpStatus.BAD_REQUEST).send({ error: "Proje bilgisi eksik." });
+      TaskService.list({project_id: req.params.projectId})
     .then((response) => {
       res.status(httpStatus.OK).send(response);
     })
@@ -30,7 +30,7 @@ const update = (req, res) => {
       message: "ID bilgisi eksik.",
     });
   }
-  modify(req.body, req.params?.id)
+  TaskService.update(req.params?.id,req.body)
     .then((updatedDoc) => {
       res.status(httpStatus.OK).send(updatedDoc);
     })
@@ -44,7 +44,7 @@ const deleteTask = (req, res) => {
     });
   }
 
-  remove(req.params?.id)
+  TaskService.delete(req.params?.id)
     .then((deletedDoc) => {
       if (!deletedDoc) {
         return res.status(httpStatus.NOT_FOUND).send({
@@ -61,7 +61,7 @@ const deleteTask = (req, res) => {
 };
 
 const makeComment = (req, res) => {
-  findOne({ _id : req.params.id}).then(mainTask => {
+  TaskService.findOne({ _id : req.params.id}).then(mainTask => {
     if(!mainTask) return res.status(httpStatus.NOT_FOUND).send({ message : "Böyle bir kayır bulunmamaktadır.."});
     const comment = {
       ... req.body,
@@ -96,11 +96,11 @@ const deleteComment = (req, res) => {
 const addSubTask = (req, res) => {
   //! MainTask Çekilir.
   if(!req.params.id) return res.status(httpStatus.BAD_REQUEST).send({ message : "ID bilgisi gerekli."});
-  findOne({ _id : req.params.id})
+  TaskService.findOne({ _id : req.params.id})
   .then(mainTask => {
     if(!mainTask) return res.status(httpStatus.NOT_FOUND).send({ message : "Böyle bir kayır bulunmamaktadır.."});
     //! SubTask Create Edilir (Task)
-    insert({ ...req.body, user_id: req.user})
+    TaskService.create({ ...req.body, user_id: req.user})
       .then((SubTask) => {
         //! SubTask'in Referansı MainTask üzerinde gösterilir ve update edilir.
         mainTask.sub_tasks.push(subTask);
@@ -119,7 +119,7 @@ const addSubTask = (req, res) => {
 const fetchTask = (req, res) => {
   if(!req.params.id) return res.status(httpStatus.BAD_REQUEST).send({ message : "ID bilgisi gerekli."});
 
-  findOne({ _id: req.params.id}, true)
+  TaskService.findOne({ _id: req.params.id}, true)
   .then((task) => {
     if(!task) return res.status(httpStatus.NOT_FOUND).send({ message : "Böyle bir kayır bulunmamaktadır.."});
     res.status(httpStatus.OK).send(task)
