@@ -1,9 +1,10 @@
-const { insert, modify, list, remove } = require("../services/Projects")
 const httpStatus = require("http-status");
+const Service = require("../services/Projects")
+const ProjectService = new Service();
 
 const create = (req, res) => {
     req.body.user_id = req.user;
-    insert(req.body)
+    ProjectService.create(req.body)
     .then((response) => { 
         res.status(httpStatus.CREATED).send(response);
     })
@@ -13,7 +14,8 @@ const create = (req, res) => {
 }
 
 const index = (req, res) => {
-    list().then((response) => {
+   ProjectService.list()
+   .then((response) => {
         res.status(httpStatus.OK).send(response);
     }).catch(e => res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e));
 }
@@ -24,9 +26,11 @@ const update = (req, res) => {
         message : "ID bilgisi eksik."
     });
     } 
-    modify(req.body, req.params?.id).then(updatedProject => {
+    ProjectService.update(req.params?.id, req.body)
+    .then(updatedProject => {
         res.status(httpStatus.OK).send(updatedProject)
-    }).catch(e => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ error : "Kayıt sırasında bir problem oluştu."}))
+    })
+    .catch(e => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ error : "Kayıt sırasında bir problem oluştu."}))
 };
 
 const deleteProject = (req, res ) => {
@@ -36,7 +40,7 @@ const deleteProject = (req, res ) => {
      });
      } 
 
-     remove(req.params?.id).then(deletedItem => {
+     ProjectService.delete(req.params?.id).then(deletedItem => {
         if(!deletedItem) {
            return res.status(httpStatus.NOT_FOUND).send({
                 message : "Kayıt bulunamadı."
