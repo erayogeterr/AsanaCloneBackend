@@ -3,14 +3,11 @@ const { passwordToHash, generateAccessToken, generateRefreshToken } = require(".
 const uuid = require("uuid");
 const eventEmitter = require("../scripts/events/eventEmitter")
 const path = require("path");
+const UserService = require("../services/UserService");
+const ProjectService = require("../services/ProjectService");
 
-const Service = require("../services/Users");
-const UserService = new Service();
-
-const projectService = require("../services/Projects");
-const ProjectService = new projectService();
-
-const create = (req, res) => {
+class User {
+    create(req, res) {
     req.body.password = passwordToHash(req.body.password);
     UserService.create(req.body)
     .then((response) => { 
@@ -19,15 +16,13 @@ const create = (req, res) => {
     .catch((e) => {
         res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e)
     })
-}
-
-const index = (req, res) => {
+    }
+    index(req, res) {
     UserService.list().then((response) => {
         res.status(httpStatus.OK).send(response);
     }).catch(e => res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e));
-}
-
-const login = (req, res) => {
+    }
+    login(req, res) {
     req.body.password = passwordToHash(req.body.password);
     UserService.findOne(req.body) 
         .then((user) => {
@@ -42,10 +37,8 @@ const login = (req, res) => {
             res.status(httpStatus.OK).send(user);
         })
         .catch((e) => res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e));
-};
-
-
-const projectList = (req, res) => {
+    }
+    projectList(req, res) {
    ProjectService.list()({ user_id: req.user?._id})
    .then((projects) => {
     res.status(httpStatus.OK).send(projects);
@@ -55,9 +48,8 @@ const projectList = (req, res) => {
     error: "Projeleri getirirken beklenmedik bir hata oluştu."
    })
    );
-};
-
-const resetPassword = (req, res) => {
+    }
+    resetPassword(req, res) {
    const new_password = uuid.v4()?.split("-")[0] || `usr-${new Date().getTime()}`;
    UserService.updateWhere({ email: req.body.email}, { password: passwordToHash(new_password)})
    .then((updatedUser) => {
@@ -73,17 +65,16 @@ const resetPassword = (req, res) => {
    })
    .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ error : "Şifre resetleme sırasında sorun çıktı."}))
   
-};
-
-const update = (req, res) => {
+    }
+    update(req, res) {
     UserService.update(req.user?.id, req.body)
         .then((updatedUser) => {
+            if (!updateProject) return next(new ApiError("Böyle bir kayıt bulunmamaktadır", 404))
             res.status(httpStatus.OK).send(updatedUser);
         })
-        .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ error: "Güncelleme işlemi sırasında hata alındı."}));
-};
-
-const changePassword = (req, res) => {
+        .catch((e) => next(new ApiError(e?.message)));
+    }
+    changePassword(req, res) {
     req.body.password = passwordToHash(req.body.password);
     //!.. ui ile yapılacak şifre karşılaştırma kuralları..
     UserService.update(req.user?.id, req.body)
@@ -91,9 +82,8 @@ const changePassword = (req, res) => {
             res.status(httpStatus.OK).send(updatedUser);
         })
         .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ error: "Güncelleme işlemi sırasında hata alındı."}));
-};
-
-const deleteUser = (req, res ) => {
+    }
+    deleteUser(req, res ) {
     if(!req.params?.id) {
         return res.status(httpStatus.BAD_REQUEST).send({
          message : "ID bilgisi eksik."
@@ -108,9 +98,8 @@ const deleteUser = (req, res ) => {
         }
         res.status(httpStatus.OK).send({message : "User silinmiştir."})
     }).catch(e => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ error : "Silme sırasında bir problem oluştu."}))
-}
-
-const updateProfileImage = (req,res) => {
+    }
+    updateProfileImage(req,res) {
     if(!req?.files?.profile_image) {
         return res.status(httpStatus.BAD_REQUEST).send({error : "Bu işlemi yapabilmek için yeterli veriye sahip değilsin."})
     }
@@ -125,16 +114,7 @@ const updateProfileImage = (req,res) => {
         })
         .catch((e) => res.status(httpStatus.INTERNAL_SERVER_ERROR).send({error : "Upload başarılı fakat kayıt sırasında hata oldu."}))
     });
-};
-
-module.exports = {
-    create,
-    index,
-    login,
-    projectList,
-    resetPassword,
-    update,
-    deleteUser,
-    changePassword,
-    updateProfileImage,
+    }
 }
+
+module.exports = new User();

@@ -1,20 +1,23 @@
-const express = require("express")
-const router = express.Router();
+// validate middleware
 const validate = require("../middlewares/validate")
-const schemas = require("../validations/Tasks")
 const authenticate = require("../middlewares/authenticate")
+const idChecker = require("../middlewares/idChecker");
+// validations
+const schemas = require("../validations/Tasks")
+const express = require("express")
+const TaskController = require("../controllers/Task")
+const router = express.Router();
 
-const { create, update, deleteTask, makeComment, deleteComment, addSubTask, fetchTask, index } = require("../controllers/Tasks")
 
-router.route("/").post(authenticate, validate(schemas.createValidation), create);
-router.route("/:id").patch(authenticate,validate(schemas.updateValidation), update);
-router.route("/:id").delete(authenticate, deleteTask);
+router.route("/").post(authenticate, validate(schemas.createValidation), TaskController.create);
+router.route("/:id").patch(idChecker(), authenticate,validate(schemas.updateValidation), TaskController.update);
+router.route("/:id").delete(idChecker(), authenticate, TaskController.deleteTask);
 
-router.route("/:id/make-comment").post(authenticate,validate(schemas.commentValidation), makeComment);
-router.route("/:id/commentId").delete(authenticate, deleteComment);
+router.route("/:id/make-comment").post(idChecker(), authenticate,validate(schemas.commentValidation), TaskController.makeComment);
+router.route("/:id/commentId").delete(idChecker(), authenticate, TaskController.deleteComment);
 
-router.route("/:id/add-sub-task").post(authenticate,validate(schemas.createValidation), addSubTask);
-router.route("/:id").get(authenticate, fetchTask);
-router.route("/").get(authenticate,index);
+router.route("/:id/add-sub-task").post(idChecker(), authenticate,validate(schemas.createValidation), TaskController.addSubTask);
+router.route("/:id").get(idChecker(), authenticate, TaskController.fetchTask);
+router.route("/").get(authenticate, TaskController.index);
 
 module.exports = router;
