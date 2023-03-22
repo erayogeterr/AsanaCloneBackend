@@ -1,14 +1,17 @@
-const express = require("express")
+// validate middleware
+const validate = require("../middlewares/validate");
+const authenticate = require("../middlewares/authenticate");
+const idChecker = require("../middlewares/idChecker");
+// validations
+const schemas = require("../validations/Projects");
+const express = require("express");
+const ProjectController = require("../controllers/Project");
 const router = express.Router();
-const validate = require("../middlewares/validate")
-const schemas = require("../validations/Projects")
-const authenticate = require("../middlewares/authenticate")
 
-const { create, index, update, deleteProject} = require("../controllers/Projects")
 
-router.route("/").get(authenticate,index)
-router.route("/").post(authenticate, validate(schemas.createValidation), create);
-router.route("/:id").delete(authenticate, deleteProject);
-router.route("/:id").patch(authenticate,validate(schemas.updateValidation),update );
+router.route("/").get(authenticate, ProjectController.index)
+router.route("/").post(authenticate, validate(schemas.createValidation), ProjectController.create);
+router.route("/:id").patch(idChecker(), authenticate,validate(schemas.updateValidation), ProjectController.update );
+router.route("/:id").delete(idChecker(), authenticate, ProjectController.deleteProject);
 
 module.exports = router;
